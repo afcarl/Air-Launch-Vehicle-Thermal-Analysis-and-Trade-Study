@@ -1,0 +1,1420 @@
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 1
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	      1 C PC SINDA/G FOR COMPAQ FORTRAN, SINGLE PRECISION                                                                   
+	      1                 
+	      2       PROGRAM SINDA                                                                                                 
+	      2                 
+	      3       CHARACTER*6 H                                                                                                 
+	      3                 
+	      4       COMMON /TITLE/H(20)                                                                                           
+	      4                 
+	      5       COMMON /TEMP/T(     10)                                                                                       
+	      5                 
+	      6       COMMON /CAP/C(      3)                                                                                        
+	      6                 
+	      7       COMMON /SOURCE/Q(      7)                                                                                     
+	      7                 
+	      8       COMMON /COND/G(      12)                                                                                      
+	      8                 
+	      9       COMMON /KONST/K(     11)                                                                                      
+	      9                 
+	     10       COMMON /ARRAY/A(    1772)                                                                                     
+	     10                 
+	     11       COMMON /PC1/LSQ1(      95)                                                                                    
+	     11                 
+	     12       COMMON /PC2/LSQ2(      36)                                                                                    
+	     12                 
+	     13       COMMON /DIMENS/NND,NNC,NNT,NGL,NGT,NGE,NCC,NUC,NCT,NAT,LENA                                                   
+	     13                 
+	     14      +,NSQ1,NSQ2,NPC,NPT,NSQ3,NVL,NPM,NTE,NSQ4,NCS,LCS                                                              
+	     14                 
+	     15       COMMON /POINTN/LNODE,LCOND,LCONS,LARRY,IVB,LPRES,LTUBE,LCHAR                                                  
+	     15                 
+	     16       COMMON /TAPE/NIN,NOUT,LDAT,LDIC,ASCI,FLUD,GNRL,CHAR,GUI                                                       
+	     16                 
+	     17       COMMON /XSPACE/NDIM,NTH,X( 1000000)                                                                           
+	     17                 
+	     18       COMMON /FIXCON/                                                                                               
+	     18                 
+	     19      +TIMEN ,DTIMEU,TIMEND,CSGFAC,NLOOP ,DTMPCA,ITROUT,DTIMEH,                                                      
+	     19                 
+	     20      +DAMPA ,DAMPD ,ATMPCA,BACKUP,TIMEO ,TIMEM ,DTMPCC,ATMPCC,                                                      
+	     20                 
+	     21      +CSGMIN,OUTPUT,ARLXCA,LOOPCT,DTIMEL,DTIMEI,CSGMAX,CSGRAL,                                                      
+	     21                 
+	     22      +CSGRCL,DRLXCA,DRLXCC,NLINE ,NPAGE ,ARLXCC,LSPCS ,ENGBAL,                                                      
+	     22                 
+	     23      +BALENG,ATSLIM,NCSGMN,NDTMPC,NARLXC,NATMPC,ITEST ,JTEST ,                                                      
+	     23                 
+	     24      +KTEST ,LTEST ,MTEST ,RTEST ,STEST ,TTEST ,UTEST ,VTEST ,                                                      
+	     24                 
+	     25      +LAXFAC,SIGMA ,TMPZRO,NDRLXC,TDERV ,NTDERV,BENODE,EBNODE,                                                      
+	     25                 
+	     26      +NODEEB,EXTLIM,NCOLUM,PRLXCA,PRLXCC,NEGSIV,GRVCON,PZERO ,                                                      
+	     26                 
+	     27      +NCSGMX,NTEST ,ATEST ,BTEST ,CTEST ,DTEST ,ETEST ,FTEST ,                                                      
+	     27                 
+	     28      +GTEST ,HTEST ,OTEST ,PTEST ,QTEST ,WTEST ,XTEST ,YTEST ,                                                      
+	     28                 
+	     29      +ZTEST ,NTROSS,ISNUNC,NLINPP,LOTEMP,ERRMAX,ERRMIN,SENGIN,                                                      
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 2
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	     29                 
+	     30      +DBLPRC,MPCNTL,IPCNT1,IPCNT2,ATSLM1,NLOOP1,JDIFQ ,KMAX  ,                                                      
+	     30                 
+	     31      +FRACHG,EPS   ,PRSABS,PRSREL,FLOABS,FLOREL,FLOMAX,PRANGE,                                                      
+	     31                 
+	     32      +ISOLVE,NPASS ,DEFLIM,ICHECK,GRAV  ,GC1   ,GC2   ,USRFLO,                                                      
+	     32                 
+	     33      +PMPTOL,DEBUGF,NOFERR,GC3   ,SPARE1,SPARE2,SPARE3,SPARE4,                                                      
+	     33                 
+	     34      +SPARE5,SPARE6,SPARE7,NNGSPM,NCONVG,SPARE8,SPARE9,SSTERM                                                       
+	     34                 
+	     35       DIMENSION XK(     11),NX( 1000000),IA(    1772)                                                               
+	     35                 
+	     36       EQUIVALENCE (K(1),XK(1)),(X(1),NX(1)),(A(1),IA(1))                                                            
+	     36                 
+	     37       LOGICAL ASCI,FLUD,GNRL,CHAR,GUI                                                                               
+	     37                 
+	     38       CHARACTER * 23 PRNAME                                                                                         
+	     38                 
+	     39       COMMON /PROBNAME/PRNAME                                                                                       
+	     39                 
+	     40       COMMON /MODNAME/MODNAME                                                                                       
+	     40                 
+	     41       CHARACTER *50 MODNAME                                                                                         
+	     41                 
+	     42       COMMON /IMODNAME/MODNSTRT,MODNEND,IFILESYS                                                                    
+	     42                 
+	     43       COMMON /NewPCS/nDimC,nDimQ,nDimG                                                                              
+	     43                 
+	     44       COMMON /PcsC/lsqC(      10)                                                                                   
+	     44                 
+	     45       COMMON /PcsQ/lsqQ(      14)                                                                                   
+	     45                 
+	     46       COMMON /PcsG/lsqG(      48)                                                                                   
+	     46                 
+	     47       LOGICAL lRecall,lParam                                                                                        
+	     47                 
+	     48        COMMON /File22/lRecall,lParam                                                                                
+	     48                 
+	     49       MODNAME="AL_PLP_Proposal_071708b"                                                                             
+	     49                 
+	     50       MODNSTRT=  1                                                                                                  
+	     50                 
+	     51       MODNEND= 23                                                                                                   
+	     51                 
+	     52       IFILESYS=  1                                                                                                  
+	     52                 
+	     53       LPARAM=.FALSE.                                                                                                
+	     53                 
+	     54       PRNAME=MODNAME(MODNSTRT:MODNEND)                                                                              
+	     54                 
+	     55       GUI=.TRUE.                                                                                                    
+	     55                 
+	     56       NIN=5                                                                                                         
+	     56                 
+	     57       LDAT=2                                                                                                        
+	     57                 
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 3
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	     58       LDIC=4                                                                                                        
+	     58                 
+	     59       ASCI=.FALSE.                                                                                                  
+	     59                 
+	     60       CHAR=.FALSE.                                                                                                  
+	     60                 
+	     61       FLUD=.FALSE.                                                                                                  
+	     61                 
+	     62       GNRL=.FALSE.                                                                                                  
+	     62                 
+	     63       T(1)=0.                                                                                                       
+	     63                 
+	     64       C(1)=0.                                                                                                       
+	     64                 
+	     65       Q(1)=0.                                                                                                       
+	     65                 
+	     66       G(1)=0.                                                                                                       
+	     66                 
+	     67       LSQ1(1)=0                                                                                                     
+	     67                 
+	     68       LSQ2(1)=0                                                                                                     
+	     68                 
+	     69       K(1)=0                                                                                                        
+	     69                 
+	     70       A(1)=0.                                                                                                       
+	     70                 
+	     71       X(1)=0.                                                                                                       
+	     71                 
+	     72       NOUT=   6                                                                                                     
+	     72                 
+	     73       CALL RUNJOB(PRNAME,MODNAME,0)                                                                                 
+	     73                 
+	     74       CALL CLOSE_H5                                                                                                 
+	     74                 
+	     75       END                                                                                                           
+	     75                 
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 4
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 _TITLE                                 120 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  6 _TEMP                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  7 _CAP                                    12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  8 _SOURCE                                 28 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  9 _COND                                   48 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 10 _KONST                                  44 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 11 _ARRAY                                7088 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 12 _PC1                                   380 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 13 _PC2                                   144 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 14 _DIMENS                                 88 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 15 _POINTN                                 32 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 16 _TAPE                                   36 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 17 _XSPACE                            4000008 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 18 _FIXCON                                512 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 19 _PROBNAME                               23 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 20 _MODNAME                                50 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 21 _IMODNAME                               12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 22 _NEWPCS                                 12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 23 _PCSC                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 24 _PCSQ                                   56 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 25 _PCSG                                  192 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 26 _FILE22                                  8 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 27 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated              4010322
+
+
+ENTRY POINTS
+
+ Address      Name 
+                   
+  4-00000000  SINDA
+
+
+VARIABLES
+
+ Address      Type  Name      Address      Type  Name      Address      Type  Name      Address      Type  Name    
+                                                                                                                   
+ 18-00000048  R*4   ARLXCA    18-00000080  R*4   BALENG    18-00000110  R*4   CTEST     18-0000001C  R*4   DTIMEH  
+ 18-00000074  R*4   ARLXCC    18-000000D8  R*4   BENODE    18-00000020  R*4   DAMPA     18-00000054  R*4   DTIMEI  
+ 16-00000010  L*4   ASCI      18-0000010C  R*4   BTEST     18-00000024  R*4   DAMPD     18-00000050  R*4   DTIMEL  
+ 18-00000108  R*4   ATEST     16-0000001C  L*4   CHAR      18-00000160  R*4   DBLPRC    18-00000004  R*4   DTIMEU  
+ 18-00000028  R*4   ATMPCA    18-0000000C  R*4   CSGFAC    18-000001C4  R*4   DEBUGF    18-00000014  R*4   DTMPCA  
+ 18-0000003C  R*4   ATMPCC    18-00000058  R*4   CSGMAX    18-000001A8  R*4   DEFLIM    18-00000038  R*4   DTMPCC  
+ 18-00000084  R*4   ATSLIM    18-00000040  R*4   CSGMIN    18-00000064  R*4   DRLXCA    18-000000DC  R*4   EBNODE  
+ 18-00000170  R*4   ATSLM1    18-0000005C  R*4   CSGRAL    18-00000068  R*4   DRLXCC    18-0000007C  R*4   ENGBAL  
+ 18-0000002C  R*4   BACKUP    18-00000060  R*4   CSGRCL    18-00000114  R*4   DTEST     18-00000184  R*4   EPS     
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 5
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ Address      Type  Name      Address      Type  Name      Address      Type  Name      Address      Type  Name    
+                                                                                                                   
+ 18-00000154  R*4   ERRMAX    15-00000008  I*4   LCONS     14-00000014  I*4   NGE       18-000000F0  R*4   PRLXCC  
+ 18-00000158  R*4   ERRMIN    14-00000054  I*4   LCS       14-0000000C  I*4   NGL       19-00000000  CHAR  PRNAME  
+ 18-00000118  R*4   ETEST     16-00000008  I*4   LDAT      14-00000010  I*4   NGT       18-00000188  R*4   PRSABS  
+ 18-000000E4  R*4   EXTLIM    16-0000000C  I*4   LDIC      16-00000000  I*4   NIN       18-0000018C  R*4   PRSREL  
+ 18-00000190  R*4   FLOABS    14-00000028  I*4   LENA      18-0000006C  I*4   NLINE     18-0000012C  R*4   PTEST   
+ 18-00000198  R*4   FLOMAX    15-00000000  I*4   LNODE     18-0000014C  I*4   NLINPP    18-000000FC  R*4   PZERO   
+ 18-00000194  R*4   FLOREL    18-0000004C  I*4   LOOPCT    18-00000010  I*4   NLOOP     18-00000130  R*4   QTEST   
+ 16-00000014  L*4   FLUD      18-00000150  I*4   LOTEMP    18-00000174  I*4   NLOOP1    18-000000AC  R*4   RTEST   
+ 18-00000180  R*4   FRACHG    26-00000004  L*4   LPARAM    14-00000004  I*4   NNC       18-0000015C  R*4   SENGIN  
+ 18-0000011C  R*4   FTEST     15-00000014  I*4   LPRES     14-00000000  I*4   NND       18-000000C4  R*4   SIGMA   
+ 18-000001B4  R*4   GC1       26-00000000  L*4   LRECALL   18-000001EC  I*4   NNGSPM    18-000001D0  R*4   SPARE1  
+ 18-000001B8  R*4   GC2       18-00000078  I*4   LSPCS     14-00000008  I*4   NNT       18-000001D4  R*4   SPARE2  
+ 18-000001CC  R*4   GC3       18-000000A4  I*4   LTEST     18-000000E0  I*4   NODEEB    18-000001D8  R*4   SPARE3  
+ 16-00000018  L*4   GNRL      15-00000018  I*4   LTUBE     18-000001C8  I*4   NOFERR    18-000001DC  R*4   SPARE4  
+ 18-000001B0  R*4   GRAV      20-00000000  CHAR  MODNAME   16-00000004  I*4   NOUT      18-000001E0  R*4   SPARE5  
+ 18-000000F8  R*4   GRVCON    21-00000004  I*4   MODNEND   18-00000070  I*4   NPAGE     18-000001E4  R*4   SPARE6  
+ 18-00000120  R*4   GTEST     21-00000000  I*4   MODNSTRT  18-000001A4  I*4   NPASS     18-000001E8  R*4   SPARE7  
+ 16-00000020  L*4   GUI       18-00000164  I*4   MPCNTL    14-00000034  I*4   NPC       18-000001F4  R*4   SPARE8  
+ 18-00000124  R*4   HTEST     18-000000A8  I*4   MTEST     14-00000044  I*4   NPM       18-000001F8  R*4   SPARE9  
+ 18-000001AC  I*4   ICHECK    18-00000090  I*4   NARLXC    14-00000038  I*4   NPT       18-000001FC  R*4   SSTERM  
+ 21-00000008  I*4   IFILESYS  14-00000024  I*4   NAT       14-0000002C  I*4   NSQ1      18-000000B0  R*4   STEST   
+ 18-00000168  I*4   IPCNT1    18-00000094  I*4   NATMPC    14-00000030  I*4   NSQ2      18-000000D0  R*4   TDERV   
+ 18-0000016C  I*4   IPCNT2    14-00000018  I*4   NCC       14-0000003C  I*4   NSQ3      18-00000034  R*4   TIMEM   
+ 18-00000148  I*4   ISNUNC    18-000000E8  I*4   NCOLUM    14-0000004C  I*4   NSQ4      18-00000000  R*4   TIMEN   
+ 18-000001A0  I*4   ISOLVE    18-000001F0  I*4   NCONVG    18-000000D4  I*4   NTDERV    18-00000008  R*4   TIMEND  
+ 18-00000098  I*4   ITEST     14-00000050  I*4   NCS       14-00000048  I*4   NTE       18-00000030  R*4   TIMEO   
+ 18-00000018  I*4   ITROUT    18-00000088  I*4   NCSGMN    18-00000104  I*4   NTEST     18-000000C8  R*4   TMPZRO  
+ 15-00000010  I*4   IVB       18-00000100  I*4   NCSGMX    17-00000004  I*4   NTH       18-000000B4  R*4   TTEST   
+ 18-00000178  I*4   JDIFQ     14-00000020  I*4   NCT       18-00000144  I*4   NTROSS    18-000001BC  R*4   USRFLO  
+ 18-0000009C  I*4   JTEST     17-00000000  I*4   NDIM      14-0000001C  I*4   NUC       18-000000B8  R*4   UTEST   
+ 18-0000017C  I*4   KMAX      22-00000000  I*4   NDIMC     14-00000040  I*4   NVL       18-000000BC  R*4   VTEST   
+ 18-000000A0  I*4   KTEST     22-00000008  I*4   NDIMG     18-00000128  R*4   OTEST     18-00000134  R*4   WTEST   
+ 15-0000000C  I*4   LARRY     22-00000004  I*4   NDIMQ     18-00000044  R*4   OUTPUT    18-00000138  R*4   XTEST   
+ 18-000000C0  I*4   LAXFAC    18-000000CC  I*4   NDRLXC    18-000001C0  R*4   PMPTOL    18-0000013C  R*4   YTEST   
+ 15-0000001C  I*4   LCHAR     18-0000008C  I*4   NDTMPC    18-0000019C  R*4   PRANGE    18-00000140  R*4   ZTEST   
+ 15-00000004  I*4   LCOND     18-000000F4  I*4   NEGSIV    18-000000EC  R*4   PRLXCA                               
+
+
+ARRAYS
+
+ Address      Type  Name        Bytes  Dimensions
+
+ 11-00000000  R*4   A            7088  (1772)
+  7-00000000  R*4   C              12  (3)
+  9-00000000  R*4   G              48  (12)
+  5-00000000  CHAR  H             120  (20)
+ 11-00000000  I*4   IA           7088  (1772)
+ 10-00000000  I*4   K              44  (11)
+ 12-00000000  I*4   LSQ1          380  (95)
+ 13-00000000  I*4   LSQ2          144  (36)
+ 23-00000000  I*4   LSQC           40  (10)
+ 25-00000000  I*4   LSQG          192  (48)
+ 24-00000000  I*4   LSQQ           56  (14)
+ 17-00000008  I*4   NX        4000000  (1000000)
+  8-00000000  R*4   Q              28  (7)
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 6
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+  6-00000000  R*4   T              40  (10)
+ 17-00000008  R*4   X         4000000  (1000000)
+ 10-00000000  R*4   XK             44  (11)
+
+EXECT                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 7
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	     76       SUBROUTINE EXECT                                                                                              
+	     76                 
+	     77       use msflib                                                                                                    
+	     77                 
+	     78       CHARACTER*6 H                                                                                                 
+	     78                 
+	     79       COMMON /TITLE/H(20)                                                                                           
+	     79                 
+	     80       COMMON /TEMP/T(     10)                                                                                       
+	     80                 
+	     81       COMMON /CAP/C(      3)                                                                                        
+	     81                 
+	     82       COMMON /SOURCE/Q(      7)                                                                                     
+	     82                 
+	     83       COMMON /COND/G(      12)                                                                                      
+	     83                 
+	     84       COMMON /KONST/K(     11)                                                                                      
+	     84                 
+	     85       COMMON /ARRAY/A(    1772)                                                                                     
+	     85                 
+	     86       COMMON /PC1/LSQ1(      95)                                                                                    
+	     86                 
+	     87       COMMON /PC2/LSQ2(      36)                                                                                    
+	     87                 
+	     88       COMMON /DIMENS/NND,NNC,NNT,NGL,NGT,NGE,NCC,NUC,NCT,NAT,LENA                                                   
+	     88                 
+	     89      +,NSQ1,NSQ2,NPC,NPT,NSQ3,NVL,NPM,NTE,NSQ4,NCS,LCS                                                              
+	     89                 
+	     90       COMMON /POINTN/LNODE,LCOND,LCONS,LARRY,IVB,LPRES,LTUBE,LCHAR                                                  
+	     90                 
+	     91       COMMON /TAPE/NIN,NOUT,LDAT,LDIC,ASCI,FLUD,GNRL,CHAR,GUI                                                       
+	     91                 
+	     92       COMMON /XSPACE/NDIM,NTH,X( 1000000)                                                                           
+	     92                 
+	     93       COMMON /FIXCON/                                                                                               
+	     93                 
+	     94      +TIMEN ,DTIMEU,TIMEND,CSGFAC,NLOOP ,DTMPCA,ITROUT,DTIMEH,                                                      
+	     94                 
+	     95      +DAMPA ,DAMPD ,ATMPCA,BACKUP,TIMEO ,TIMEM ,DTMPCC,ATMPCC,                                                      
+	     95                 
+	     96      +CSGMIN,OUTPUT,ARLXCA,LOOPCT,DTIMEL,DTIMEI,CSGMAX,CSGRAL,                                                      
+	     96                 
+	     97      +CSGRCL,DRLXCA,DRLXCC,NLINE ,NPAGE ,ARLXCC,LSPCS ,ENGBAL,                                                      
+	     97                 
+	     98      +BALENG,ATSLIM,NCSGMN,NDTMPC,NARLXC,NATMPC,ITEST ,JTEST ,                                                      
+	     98                 
+	     99      +KTEST ,LTEST ,MTEST ,RTEST ,STEST ,TTEST ,UTEST ,VTEST ,                                                      
+	     99                 
+	    100      +LAXFAC,SIGMA ,TMPZRO,NDRLXC,TDERV ,NTDERV,BENODE,EBNODE,                                                      
+	    100                 
+	    101      +NODEEB,EXTLIM,NCOLUM,PRLXCA,PRLXCC,NEGSIV,GRVCON,PZERO ,                                                      
+	    101                 
+	    102      +NCSGMX,NTEST ,ATEST ,BTEST ,CTEST ,DTEST ,ETEST ,FTEST ,                                                      
+	    102                 
+	    103      +GTEST ,HTEST ,OTEST ,PTEST ,QTEST ,WTEST ,XTEST ,YTEST ,                                                      
+	    103                 
+	    104      +ZTEST ,NTROSS,ISNUNC,NLINPP,LOTEMP,ERRMAX,ERRMIN,SENGIN,                                                      
+
+EXECT                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 8
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    104                 
+	    105      +DBLPRC,MPCNTL,IPCNT1,IPCNT2,ATSLM1,NLOOP1,JDIFQ ,KMAX  ,                                                      
+	    105                 
+	    106      +FRACHG,EPS   ,PRSABS,PRSREL,FLOABS,FLOREL,FLOMAX,PRANGE,                                                      
+	    106                 
+	    107      +ISOLVE,NPASS ,DEFLIM,ICHECK,GRAV  ,GC1   ,GC2   ,USRFLO,                                                      
+	    107                 
+	    108      +PMPTOL,DEBUGF,NOFERR,GC3   ,SPARE1,SPARE2,SPARE3,SPARE4,                                                      
+	    108                 
+	    109      +SPARE5,SPARE6,SPARE7,NNGSPM,NCONVG,SPARE8,SPARE9,SSTERM                                                       
+	    109                 
+	    110       DIMENSION XK(     11),NX( 1000000),IA(    1772)                                                               
+	    110                 
+	    111       EQUIVALENCE (K(1),XK(1)),(X(1),NX(1)),(A(1),IA(1))                                                            
+	    111                 
+	    112       LOGICAL ASCI,FLUD,GNRL,CHAR,GUI                                                                               
+	    112                 
+	    113       CHARACTER * 23 PRNAME                                                                                         
+	    113                 
+	    114       COMMON /PROBNAME/PRNAME                                                                                       
+	    114                 
+	    115       CALL SNDUFR                                                                                                   
+	    115                 
+	    116       RETURN                                                                                                        
+	    116                 
+	    117       END                                                                                                           
+	    117                 
+
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 _TITLE                                 120 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  6 _TEMP                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  7 _CAP                                    12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  8 _SOURCE                                 28 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  9 _COND                                   48 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 10 _KONST                                  44 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 11 _ARRAY                                7088 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 12 _PC1                                   380 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 13 _PC2                                   144 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 14 _DIMENS                                 88 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 15 _POINTN                                 32 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 16 _TAPE                                   36 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 17 _XSPACE                            4000008 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 18 _FIXCON                                512 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 19 _PROBNAME                               23 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 20 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated              4009952
+
+
+
+EXECT                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 9
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ENTRY POINTS
+
+ Address      Name 
+                   
+  4-0000019C  EXECT
+
+
+VARIABLES
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+ 18-00000048  R*4   ARLXCA  16-00000014  L*4   FLUD    14-00000024  I*4   NAT     14-00000040  I*4   NVL   
+ 18-00000074  R*4   ARLXCC  18-00000180  R*4   FRACHG  18-00000094  I*4   NATMPC  18-00000128  R*4   OTEST 
+ 16-00000010  L*4   ASCI    18-0000011C  R*4   FTEST   14-00000018  I*4   NCC     18-00000044  R*4   OUTPUT
+ 18-00000108  R*4   ATEST   18-000001B4  R*4   GC1     18-000000E8  I*4   NCOLUM  18-000001C0  R*4   PMPTOL
+ 18-00000028  R*4   ATMPCA  18-000001B8  R*4   GC2     18-000001F0  I*4   NCONVG  18-0000019C  R*4   PRANGE
+ 18-0000003C  R*4   ATMPCC  18-000001CC  R*4   GC3     14-00000050  I*4   NCS     18-000000EC  R*4   PRLXCA
+ 18-00000084  R*4   ATSLIM  16-00000018  L*4   GNRL    18-00000088  I*4   NCSGMN  18-000000F0  R*4   PRLXCC
+ 18-00000170  R*4   ATSLM1  18-000001B0  R*4   GRAV    18-00000100  I*4   NCSGMX  19-00000000  CHAR  PRNAME
+ 18-0000002C  R*4   BACKUP  18-000000F8  R*4   GRVCON  14-00000020  I*4   NCT     18-00000188  R*4   PRSABS
+ 18-00000080  R*4   BALENG  18-00000120  R*4   GTEST   17-00000000  I*4   NDIM    18-0000018C  R*4   PRSREL
+ 18-000000D8  R*4   BENODE  16-00000020  L*4   GUI     18-000000CC  I*4   NDRLXC  18-0000012C  R*4   PTEST 
+ 18-0000010C  R*4   BTEST   18-00000124  R*4   HTEST   18-0000008C  I*4   NDTMPC  18-000000FC  R*4   PZERO 
+ 16-0000001C  L*4   CHAR    18-000001AC  I*4   ICHECK  18-000000F4  I*4   NEGSIV  18-00000130  R*4   QTEST 
+ 18-0000000C  R*4   CSGFAC  18-00000168  I*4   IPCNT1  14-00000014  I*4   NGE     18-000000AC  R*4   RTEST 
+ 18-00000058  R*4   CSGMAX  18-0000016C  I*4   IPCNT2  14-0000000C  I*4   NGL     18-0000015C  R*4   SENGIN
+ 18-00000040  R*4   CSGMIN  18-00000148  I*4   ISNUNC  14-00000010  I*4   NGT     18-000000C4  R*4   SIGMA 
+ 18-0000005C  R*4   CSGRAL  18-000001A0  I*4   ISOLVE  16-00000000  I*4   NIN     18-000001D0  R*4   SPARE1
+ 18-00000060  R*4   CSGRCL  18-00000098  I*4   ITEST   18-0000006C  I*4   NLINE   18-000001D4  R*4   SPARE2
+ 18-00000110  R*4   CTEST   18-00000018  I*4   ITROUT  18-0000014C  I*4   NLINPP  18-000001D8  R*4   SPARE3
+ 18-00000020  R*4   DAMPA   15-00000010  I*4   IVB     18-00000010  I*4   NLOOP   18-000001DC  R*4   SPARE4
+ 18-00000024  R*4   DAMPD   18-00000178  I*4   JDIFQ   18-00000174  I*4   NLOOP1  18-000001E0  R*4   SPARE5
+ 18-00000160  R*4   DBLPRC  18-0000009C  I*4   JTEST   14-00000004  I*4   NNC     18-000001E4  R*4   SPARE6
+ 18-000001C4  R*4   DEBUGF  18-0000017C  I*4   KMAX    14-00000000  I*4   NND     18-000001E8  R*4   SPARE7
+ 18-000001A8  R*4   DEFLIM  18-000000A0  I*4   KTEST   18-000001EC  I*4   NNGSPM  18-000001F4  R*4   SPARE8
+ 18-00000064  R*4   DRLXCA  15-0000000C  I*4   LARRY   14-00000008  I*4   NNT     18-000001F8  R*4   SPARE9
+ 18-00000068  R*4   DRLXCC  18-000000C0  I*4   LAXFAC  18-000000E0  I*4   NODEEB  18-000001FC  R*4   SSTERM
+ 18-00000114  R*4   DTEST   15-0000001C  I*4   LCHAR   18-000001C8  I*4   NOFERR  18-000000B0  R*4   STEST 
+ 18-0000001C  R*4   DTIMEH  15-00000004  I*4   LCOND   16-00000004  I*4   NOUT    18-000000D0  R*4   TDERV 
+ 18-00000054  R*4   DTIMEI  15-00000008  I*4   LCONS   18-00000070  I*4   NPAGE   18-00000034  R*4   TIMEM 
+ 18-00000050  R*4   DTIMEL  14-00000054  I*4   LCS     18-000001A4  I*4   NPASS   18-00000000  R*4   TIMEN 
+ 18-00000004  R*4   DTIMEU  16-00000008  I*4   LDAT    14-00000034  I*4   NPC     18-00000008  R*4   TIMEND
+ 18-00000014  R*4   DTMPCA  16-0000000C  I*4   LDIC    14-00000044  I*4   NPM     18-00000030  R*4   TIMEO 
+ 18-00000038  R*4   DTMPCC  14-00000028  I*4   LENA    14-00000038  I*4   NPT     18-000000C8  R*4   TMPZRO
+ 18-000000DC  R*4   EBNODE  15-00000000  I*4   LNODE   14-0000002C  I*4   NSQ1    18-000000B4  R*4   TTEST 
+ 18-0000007C  R*4   ENGBAL  18-0000004C  I*4   LOOPCT  14-00000030  I*4   NSQ2    18-000001BC  R*4   USRFLO
+ 18-00000184  R*4   EPS     18-00000150  I*4   LOTEMP  14-0000003C  I*4   NSQ3    18-000000B8  R*4   UTEST 
+ 18-00000154  R*4   ERRMAX  15-00000014  I*4   LPRES   14-0000004C  I*4   NSQ4    18-000000BC  R*4   VTEST 
+ 18-00000158  R*4   ERRMIN  18-00000078  I*4   LSPCS   18-000000D4  I*4   NTDERV  18-00000134  R*4   WTEST 
+ 18-00000118  R*4   ETEST   18-000000A4  I*4   LTEST   14-00000048  I*4   NTE     18-00000138  R*4   XTEST 
+ 18-000000E4  R*4   EXTLIM  15-00000018  I*4   LTUBE   18-00000104  I*4   NTEST   18-0000013C  R*4   YTEST 
+ 18-00000190  R*4   FLOABS  18-00000164  I*4   MPCNTL  17-00000004  I*4   NTH     18-00000140  R*4   ZTEST 
+ 18-00000198  R*4   FLOMAX  18-000000A8  I*4   MTEST   18-00000144  I*4   NTROSS                           
+ 18-00000194  R*4   FLOREL  18-00000090  I*4   NARLXC  14-0000001C  I*4   NUC                              
+
+
+
+EXECT                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 10
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ARRAYS
+
+ Address      Type  Name        Bytes  Dimensions
+
+ 11-00000000  R*4   A            7088  (1772)
+  7-00000000  R*4   C              12  (3)
+  9-00000000  R*4   G              48  (12)
+  5-00000000  CHAR  H             120  (20)
+ 11-00000000  I*4   IA           7088  (1772)
+ 10-00000000  I*4   K              44  (11)
+ 12-00000000  I*4   LSQ1          380  (95)
+ 13-00000000  I*4   LSQ2          144  (36)
+ 17-00000008  I*4   NX        4000000  (1000000)
+  8-00000000  R*4   Q              28  (7)
+  6-00000000  R*4   T              40  (10)
+ 17-00000008  R*4   X         4000000  (1000000)
+ 10-00000000  R*4   XK             44  (11)
+
+VARBL1                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 11
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    118       SUBROUTINE VARBL1                                                                                             
+	    118                 
+	    119       use msflib                                                                                                    
+	    119                 
+	    120       CHARACTER*6 H                                                                                                 
+	    120                 
+	    121       COMMON /TITLE/H(20)                                                                                           
+	    121                 
+	    122       COMMON /TEMP/T(     10)                                                                                       
+	    122                 
+	    123       COMMON /CAP/C(      3)                                                                                        
+	    123                 
+	    124       COMMON /SOURCE/Q(      7)                                                                                     
+	    124                 
+	    125       COMMON /COND/G(      12)                                                                                      
+	    125                 
+	    126       COMMON /KONST/K(     11)                                                                                      
+	    126                 
+	    127       COMMON /ARRAY/A(    1772)                                                                                     
+	    127                 
+	    128       COMMON /PC1/LSQ1(      95)                                                                                    
+	    128                 
+	    129       COMMON /PC2/LSQ2(      36)                                                                                    
+	    129                 
+	    130       COMMON /DIMENS/NND,NNC,NNT,NGL,NGT,NGE,NCC,NUC,NCT,NAT,LENA                                                   
+	    130                 
+	    131      +,NSQ1,NSQ2,NPC,NPT,NSQ3,NVL,NPM,NTE,NSQ4,NCS,LCS                                                              
+	    131                 
+	    132       COMMON /POINTN/LNODE,LCOND,LCONS,LARRY,IVB,LPRES,LTUBE,LCHAR                                                  
+	    132                 
+	    133       COMMON /TAPE/NIN,NOUT,LDAT,LDIC,ASCI,FLUD,GNRL,CHAR,GUI                                                       
+	    133                 
+	    134       COMMON /XSPACE/NDIM,NTH,X( 1000000)                                                                           
+	    134                 
+	    135       COMMON /FIXCON/                                                                                               
+	    135                 
+	    136      +TIMEN ,DTIMEU,TIMEND,CSGFAC,NLOOP ,DTMPCA,ITROUT,DTIMEH,                                                      
+	    136                 
+	    137      +DAMPA ,DAMPD ,ATMPCA,BACKUP,TIMEO ,TIMEM ,DTMPCC,ATMPCC,                                                      
+	    137                 
+	    138      +CSGMIN,OUTPUT,ARLXCA,LOOPCT,DTIMEL,DTIMEI,CSGMAX,CSGRAL,                                                      
+	    138                 
+	    139      +CSGRCL,DRLXCA,DRLXCC,NLINE ,NPAGE ,ARLXCC,LSPCS ,ENGBAL,                                                      
+	    139                 
+	    140      +BALENG,ATSLIM,NCSGMN,NDTMPC,NARLXC,NATMPC,ITEST ,JTEST ,                                                      
+	    140                 
+	    141      +KTEST ,LTEST ,MTEST ,RTEST ,STEST ,TTEST ,UTEST ,VTEST ,                                                      
+	    141                 
+	    142      +LAXFAC,SIGMA ,TMPZRO,NDRLXC,TDERV ,NTDERV,BENODE,EBNODE,                                                      
+	    142                 
+	    143      +NODEEB,EXTLIM,NCOLUM,PRLXCA,PRLXCC,NEGSIV,GRVCON,PZERO ,                                                      
+	    143                 
+	    144      +NCSGMX,NTEST ,ATEST ,BTEST ,CTEST ,DTEST ,ETEST ,FTEST ,                                                      
+	    144                 
+	    145      +GTEST ,HTEST ,OTEST ,PTEST ,QTEST ,WTEST ,XTEST ,YTEST ,                                                      
+	    145                 
+	    146      +ZTEST ,NTROSS,ISNUNC,NLINPP,LOTEMP,ERRMAX,ERRMIN,SENGIN,                                                      
+
+VARBL1                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 12
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    146                 
+	    147      +DBLPRC,MPCNTL,IPCNT1,IPCNT2,ATSLM1,NLOOP1,JDIFQ ,KMAX  ,                                                      
+	    147                 
+	    148      +FRACHG,EPS   ,PRSABS,PRSREL,FLOABS,FLOREL,FLOMAX,PRANGE,                                                      
+	    148                 
+	    149      +ISOLVE,NPASS ,DEFLIM,ICHECK,GRAV  ,GC1   ,GC2   ,USRFLO,                                                      
+	    149                 
+	    150      +PMPTOL,DEBUGF,NOFERR,GC3   ,SPARE1,SPARE2,SPARE3,SPARE4,                                                      
+	    150                 
+	    151      +SPARE5,SPARE6,SPARE7,NNGSPM,NCONVG,SPARE8,SPARE9,SSTERM                                                       
+	    151                 
+	    152       DIMENSION XK(     11),NX( 1000000),IA(    1772)                                                               
+	    152                 
+	    153       EQUIVALENCE (K(1),XK(1)),(X(1),NX(1)),(A(1),IA(1))                                                            
+	    153                 
+	    154       LOGICAL ASCI,FLUD,GNRL,CHAR,GUI                                                                               
+	    154                 
+	    155       CHARACTER * 23 PRNAME                                                                                         
+	    155                 
+	    156       COMMON /PROBNAME/PRNAME                                                                                       
+	    156                 
+	    157 CcC                                                                                                                 
+	    157                 
+	    158 CcC        Turn off the natural convection during the flight.                                                       
+	    158                 
+	    159 CcC        Assume 1 BTU/hr ft**2 = 1.929E-6 BTU/sec in**2                                                           
+	    159                 
+	    160 CcC        G(1) = Area * h = (19.0*19.0) * 1.929E-6                                                                 
+	    160                 
+	    161 CcCM     IF( TIMEN .GE.    50.0 )  G(1) = 0.0                                                                       
+	    161                 
+	    162       IF( TIMEN .GE.    0.0 )  G(1) = 0.0                                                                           
+	    162                 
+	    163 CcM      G(1) = 0.0                                                                                                 
+	    163                 
+	    164 CcCM     IF( TIMEN .GE. 10933.0 )  G(1) = 6.964E-4                                                                  
+	    164                 
+	    165 CcC                                                                                                                 
+	    165                 
+	    166 CcC        Turn off the connection to the fuel boundary node after the ascent.                                      
+	    166                 
+	    167 CcCM     IF( TIMEN .GT. 1200.0 )  XK15201 = 0.0                                                                     
+	    167                 
+	    168 CcC                                                                                                                 
+	    168                 
+	    169 CcC        Allow air conduction during ascent and descent.                                                          
+	    169                 
+	    170 CcCF     IF( TIMEN .GE. 1200.0  .AND.  TIMEN .LE. 9000.0 )  THEN                                                    
+	    170                 
+	    171 CcCM        XK3000  = 0.0                                                                                           
+	    171                 
+	    172 CcCM        XK11100 = 0.0                                                                                           
+	    172                 
+	    173 CcCF     ELSE                                                                                                       
+	    173                 
+	    174 CcM        XK3000  = 3.343E-2                                                                                       
+	    174                 
+
+VARBL1                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 13
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    175 CcM        XK11100 = 0.015                                                                                          
+	    175                 
+	    176 CcCF     ENDIF                                                                                                      
+	    176                 
+	    177 CcC                                                                                                                 
+	    177                 
+	    178       RETURN                                                                                                        
+	    178                 
+	    179       END                                                                                                           
+	    179                 
+
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 _TITLE                                 120 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  6 _TEMP                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  7 _CAP                                    12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  8 _SOURCE                                 28 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  9 _COND                                   48 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 10 _KONST                                  44 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 11 _ARRAY                                7088 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 12 _PC1                                   380 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 13 _PC2                                   144 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 14 _DIMENS                                 88 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 15 _POINTN                                 32 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 16 _TAPE                                   36 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 17 _XSPACE                            4000008 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 18 _FIXCON                                512 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 19 _PROBNAME                               23 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 20 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated              4009952
+
+
+ENTRY POINTS
+
+ Address      Name  
+                    
+  4-000001B2  VARBL1
+
+
+VARIABLES
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+ 18-00000048  R*4   ARLXCA  18-00000084  R*4   ATSLIM  16-0000001C  L*4   CHAR    18-00000110  R*4   CTEST 
+ 18-00000074  R*4   ARLXCC  18-00000170  R*4   ATSLM1  18-0000000C  R*4   CSGFAC  18-00000020  R*4   DAMPA 
+ 16-00000010  L*4   ASCI    18-0000002C  R*4   BACKUP  18-00000058  R*4   CSGMAX  18-00000024  R*4   DAMPD 
+ 18-00000108  R*4   ATEST   18-00000080  R*4   BALENG  18-00000040  R*4   CSGMIN  18-00000160  R*4   DBLPRC
+ 18-00000028  R*4   ATMPCA  18-000000D8  R*4   BENODE  18-0000005C  R*4   CSGRAL  18-000001C4  R*4   DEBUGF
+ 18-0000003C  R*4   ATMPCC  18-0000010C  R*4   BTEST   18-00000060  R*4   CSGRCL  18-000001A8  R*4   DEFLIM
+
+VARBL1                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 14
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+ 18-00000064  R*4   DRLXCA  18-00000018  I*4   ITROUT  18-000000F4  I*4   NEGSIV  18-000000F0  R*4   PRLXCC
+ 18-00000068  R*4   DRLXCC  15-00000010  I*4   IVB     14-00000014  I*4   NGE     19-00000000  CHAR  PRNAME
+ 18-00000114  R*4   DTEST   18-00000178  I*4   JDIFQ   14-0000000C  I*4   NGL     18-00000188  R*4   PRSABS
+ 18-0000001C  R*4   DTIMEH  18-0000009C  I*4   JTEST   14-00000010  I*4   NGT     18-0000018C  R*4   PRSREL
+ 18-00000054  R*4   DTIMEI  18-0000017C  I*4   KMAX    16-00000000  I*4   NIN     18-0000012C  R*4   PTEST 
+ 18-00000050  R*4   DTIMEL  18-000000A0  I*4   KTEST   18-0000006C  I*4   NLINE   18-000000FC  R*4   PZERO 
+ 18-00000004  R*4   DTIMEU  15-0000000C  I*4   LARRY   18-0000014C  I*4   NLINPP  18-00000130  R*4   QTEST 
+ 18-00000014  R*4   DTMPCA  18-000000C0  I*4   LAXFAC  18-00000010  I*4   NLOOP   18-000000AC  R*4   RTEST 
+ 18-00000038  R*4   DTMPCC  15-0000001C  I*4   LCHAR   18-00000174  I*4   NLOOP1  18-0000015C  R*4   SENGIN
+ 18-000000DC  R*4   EBNODE  15-00000004  I*4   LCOND   14-00000004  I*4   NNC     18-000000C4  R*4   SIGMA 
+ 18-0000007C  R*4   ENGBAL  15-00000008  I*4   LCONS   14-00000000  I*4   NND     18-000001D0  R*4   SPARE1
+ 18-00000184  R*4   EPS     14-00000054  I*4   LCS     18-000001EC  I*4   NNGSPM  18-000001D4  R*4   SPARE2
+ 18-00000154  R*4   ERRMAX  16-00000008  I*4   LDAT    14-00000008  I*4   NNT     18-000001D8  R*4   SPARE3
+ 18-00000158  R*4   ERRMIN  16-0000000C  I*4   LDIC    18-000000E0  I*4   NODEEB  18-000001DC  R*4   SPARE4
+ 18-00000118  R*4   ETEST   14-00000028  I*4   LENA    18-000001C8  I*4   NOFERR  18-000001E0  R*4   SPARE5
+ 18-000000E4  R*4   EXTLIM  15-00000000  I*4   LNODE   16-00000004  I*4   NOUT    18-000001E4  R*4   SPARE6
+ 18-00000190  R*4   FLOABS  18-0000004C  I*4   LOOPCT  18-00000070  I*4   NPAGE   18-000001E8  R*4   SPARE7
+ 18-00000198  R*4   FLOMAX  18-00000150  I*4   LOTEMP  18-000001A4  I*4   NPASS   18-000001F4  R*4   SPARE8
+ 18-00000194  R*4   FLOREL  15-00000014  I*4   LPRES   14-00000034  I*4   NPC     18-000001F8  R*4   SPARE9
+ 16-00000014  L*4   FLUD    18-00000078  I*4   LSPCS   14-00000044  I*4   NPM     18-000001FC  R*4   SSTERM
+ 18-00000180  R*4   FRACHG  18-000000A4  I*4   LTEST   14-00000038  I*4   NPT     18-000000B0  R*4   STEST 
+ 18-0000011C  R*4   FTEST   15-00000018  I*4   LTUBE   14-0000002C  I*4   NSQ1    18-000000D0  R*4   TDERV 
+ 18-000001B4  R*4   GC1     18-00000164  I*4   MPCNTL  14-00000030  I*4   NSQ2    18-00000034  R*4   TIMEM 
+ 18-000001B8  R*4   GC2     18-000000A8  I*4   MTEST   14-0000003C  I*4   NSQ3    18-00000000  R*4   TIMEN 
+ 18-000001CC  R*4   GC3     18-00000090  I*4   NARLXC  14-0000004C  I*4   NSQ4    18-00000008  R*4   TIMEND
+ 16-00000018  L*4   GNRL    14-00000024  I*4   NAT     18-000000D4  I*4   NTDERV  18-00000030  R*4   TIMEO 
+ 18-000001B0  R*4   GRAV    18-00000094  I*4   NATMPC  14-00000048  I*4   NTE     18-000000C8  R*4   TMPZRO
+ 18-000000F8  R*4   GRVCON  14-00000018  I*4   NCC     18-00000104  I*4   NTEST   18-000000B4  R*4   TTEST 
+ 18-00000120  R*4   GTEST   18-000000E8  I*4   NCOLUM  17-00000004  I*4   NTH     18-000001BC  R*4   USRFLO
+ 16-00000020  L*4   GUI     18-000001F0  I*4   NCONVG  18-00000144  I*4   NTROSS  18-000000B8  R*4   UTEST 
+ 18-00000124  R*4   HTEST   14-00000050  I*4   NCS     14-0000001C  I*4   NUC     18-000000BC  R*4   VTEST 
+ 18-000001AC  I*4   ICHECK  18-00000088  I*4   NCSGMN  14-00000040  I*4   NVL     18-00000134  R*4   WTEST 
+ 18-00000168  I*4   IPCNT1  18-00000100  I*4   NCSGMX  18-00000128  R*4   OTEST   18-00000138  R*4   XTEST 
+ 18-0000016C  I*4   IPCNT2  14-00000020  I*4   NCT     18-00000044  R*4   OUTPUT  18-0000013C  R*4   YTEST 
+ 18-00000148  I*4   ISNUNC  17-00000000  I*4   NDIM    18-000001C0  R*4   PMPTOL  18-00000140  R*4   ZTEST 
+ 18-000001A0  I*4   ISOLVE  18-000000CC  I*4   NDRLXC  18-0000019C  R*4   PRANGE                           
+ 18-00000098  I*4   ITEST   18-0000008C  I*4   NDTMPC  18-000000EC  R*4   PRLXCA                           
+
+
+ARRAYS
+
+ Address      Type  Name        Bytes  Dimensions
+
+ 11-00000000  R*4   A            7088  (1772)
+  7-00000000  R*4   C              12  (3)
+  9-00000000  R*4   G              48  (12)
+  5-00000000  CHAR  H             120  (20)
+ 11-00000000  I*4   IA           7088  (1772)
+ 10-00000000  I*4   K              44  (11)
+ 12-00000000  I*4   LSQ1          380  (95)
+ 13-00000000  I*4   LSQ2          144  (36)
+ 17-00000008  I*4   NX        4000000  (1000000)
+  8-00000000  R*4   Q              28  (7)
+  6-00000000  R*4   T              40  (10)
+ 17-00000008  R*4   X         4000000  (1000000)
+
+VARBL1                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 15
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ 10-00000000  R*4   XK             44  (11)
+
+VARBL2                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 16
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    180       SUBROUTINE VARBL2                                                                                             
+	    180                 
+	    181       use msflib                                                                                                    
+	    181                 
+	    182       CHARACTER*6 H                                                                                                 
+	    182                 
+	    183       COMMON /TITLE/H(20)                                                                                           
+	    183                 
+	    184       COMMON /TEMP/T(     10)                                                                                       
+	    184                 
+	    185       COMMON /CAP/C(      3)                                                                                        
+	    185                 
+	    186       COMMON /SOURCE/Q(      7)                                                                                     
+	    186                 
+	    187       COMMON /COND/G(      12)                                                                                      
+	    187                 
+	    188       COMMON /KONST/K(     11)                                                                                      
+	    188                 
+	    189       COMMON /ARRAY/A(    1772)                                                                                     
+	    189                 
+	    190       COMMON /PC1/LSQ1(      95)                                                                                    
+	    190                 
+	    191       COMMON /PC2/LSQ2(      36)                                                                                    
+	    191                 
+	    192       COMMON /DIMENS/NND,NNC,NNT,NGL,NGT,NGE,NCC,NUC,NCT,NAT,LENA                                                   
+	    192                 
+	    193      +,NSQ1,NSQ2,NPC,NPT,NSQ3,NVL,NPM,NTE,NSQ4,NCS,LCS                                                              
+	    193                 
+	    194       COMMON /POINTN/LNODE,LCOND,LCONS,LARRY,IVB,LPRES,LTUBE,LCHAR                                                  
+	    194                 
+	    195       COMMON /TAPE/NIN,NOUT,LDAT,LDIC,ASCI,FLUD,GNRL,CHAR,GUI                                                       
+	    195                 
+	    196       COMMON /XSPACE/NDIM,NTH,X( 1000000)                                                                           
+	    196                 
+	    197       COMMON /FIXCON/                                                                                               
+	    197                 
+	    198      +TIMEN ,DTIMEU,TIMEND,CSGFAC,NLOOP ,DTMPCA,ITROUT,DTIMEH,                                                      
+	    198                 
+	    199      +DAMPA ,DAMPD ,ATMPCA,BACKUP,TIMEO ,TIMEM ,DTMPCC,ATMPCC,                                                      
+	    199                 
+	    200      +CSGMIN,OUTPUT,ARLXCA,LOOPCT,DTIMEL,DTIMEI,CSGMAX,CSGRAL,                                                      
+	    200                 
+	    201      +CSGRCL,DRLXCA,DRLXCC,NLINE ,NPAGE ,ARLXCC,LSPCS ,ENGBAL,                                                      
+	    201                 
+	    202      +BALENG,ATSLIM,NCSGMN,NDTMPC,NARLXC,NATMPC,ITEST ,JTEST ,                                                      
+	    202                 
+	    203      +KTEST ,LTEST ,MTEST ,RTEST ,STEST ,TTEST ,UTEST ,VTEST ,                                                      
+	    203                 
+	    204      +LAXFAC,SIGMA ,TMPZRO,NDRLXC,TDERV ,NTDERV,BENODE,EBNODE,                                                      
+	    204                 
+	    205      +NODEEB,EXTLIM,NCOLUM,PRLXCA,PRLXCC,NEGSIV,GRVCON,PZERO ,                                                      
+	    205                 
+	    206      +NCSGMX,NTEST ,ATEST ,BTEST ,CTEST ,DTEST ,ETEST ,FTEST ,                                                      
+	    206                 
+	    207      +GTEST ,HTEST ,OTEST ,PTEST ,QTEST ,WTEST ,XTEST ,YTEST ,                                                      
+	    207                 
+	    208      +ZTEST ,NTROSS,ISNUNC,NLINPP,LOTEMP,ERRMAX,ERRMIN,SENGIN,                                                      
+
+VARBL2                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 17
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    208                 
+	    209      +DBLPRC,MPCNTL,IPCNT1,IPCNT2,ATSLM1,NLOOP1,JDIFQ ,KMAX  ,                                                      
+	    209                 
+	    210      +FRACHG,EPS   ,PRSABS,PRSREL,FLOABS,FLOREL,FLOMAX,PRANGE,                                                      
+	    210                 
+	    211      +ISOLVE,NPASS ,DEFLIM,ICHECK,GRAV  ,GC1   ,GC2   ,USRFLO,                                                      
+	    211                 
+	    212      +PMPTOL,DEBUGF,NOFERR,GC3   ,SPARE1,SPARE2,SPARE3,SPARE4,                                                      
+	    212                 
+	    213      +SPARE5,SPARE6,SPARE7,NNGSPM,NCONVG,SPARE8,SPARE9,SSTERM                                                       
+	    213                 
+	    214       DIMENSION XK(     11),NX( 1000000),IA(    1772)                                                               
+	    214                 
+	    215       EQUIVALENCE (K(1),XK(1)),(X(1),NX(1)),(A(1),IA(1))                                                            
+	    215                 
+	    216       LOGICAL ASCI,FLUD,GNRL,CHAR,GUI                                                                               
+	    216                 
+	    217       CHARACTER * 23 PRNAME                                                                                         
+	    217                 
+	    218       COMMON /PROBNAME/PRNAME                                                                                       
+	    218                 
+	    219       RETURN                                                                                                        
+	    219                 
+	    220       END                                                                                                           
+	    220                 
+
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 _TITLE                                 120 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  6 _TEMP                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  7 _CAP                                    12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  8 _SOURCE                                 28 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  9 _COND                                   48 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 10 _KONST                                  44 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 11 _ARRAY                                7088 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 12 _PC1                                   380 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 13 _PC2                                   144 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 14 _DIMENS                                 88 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 15 _POINTN                                 32 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 16 _TAPE                                   36 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 17 _XSPACE                            4000008 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 18 _FIXCON                                512 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 19 _PROBNAME                               23 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 20 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated              4009952
+
+
+
+VARBL2                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 18
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ENTRY POINTS
+
+ Address      Name  
+                    
+  4-000001E2  VARBL2
+
+
+VARIABLES
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+ 18-00000048  R*4   ARLXCA  16-00000014  L*4   FLUD    14-00000024  I*4   NAT     14-00000040  I*4   NVL   
+ 18-00000074  R*4   ARLXCC  18-00000180  R*4   FRACHG  18-00000094  I*4   NATMPC  18-00000128  R*4   OTEST 
+ 16-00000010  L*4   ASCI    18-0000011C  R*4   FTEST   14-00000018  I*4   NCC     18-00000044  R*4   OUTPUT
+ 18-00000108  R*4   ATEST   18-000001B4  R*4   GC1     18-000000E8  I*4   NCOLUM  18-000001C0  R*4   PMPTOL
+ 18-00000028  R*4   ATMPCA  18-000001B8  R*4   GC2     18-000001F0  I*4   NCONVG  18-0000019C  R*4   PRANGE
+ 18-0000003C  R*4   ATMPCC  18-000001CC  R*4   GC3     14-00000050  I*4   NCS     18-000000EC  R*4   PRLXCA
+ 18-00000084  R*4   ATSLIM  16-00000018  L*4   GNRL    18-00000088  I*4   NCSGMN  18-000000F0  R*4   PRLXCC
+ 18-00000170  R*4   ATSLM1  18-000001B0  R*4   GRAV    18-00000100  I*4   NCSGMX  19-00000000  CHAR  PRNAME
+ 18-0000002C  R*4   BACKUP  18-000000F8  R*4   GRVCON  14-00000020  I*4   NCT     18-00000188  R*4   PRSABS
+ 18-00000080  R*4   BALENG  18-00000120  R*4   GTEST   17-00000000  I*4   NDIM    18-0000018C  R*4   PRSREL
+ 18-000000D8  R*4   BENODE  16-00000020  L*4   GUI     18-000000CC  I*4   NDRLXC  18-0000012C  R*4   PTEST 
+ 18-0000010C  R*4   BTEST   18-00000124  R*4   HTEST   18-0000008C  I*4   NDTMPC  18-000000FC  R*4   PZERO 
+ 16-0000001C  L*4   CHAR    18-000001AC  I*4   ICHECK  18-000000F4  I*4   NEGSIV  18-00000130  R*4   QTEST 
+ 18-0000000C  R*4   CSGFAC  18-00000168  I*4   IPCNT1  14-00000014  I*4   NGE     18-000000AC  R*4   RTEST 
+ 18-00000058  R*4   CSGMAX  18-0000016C  I*4   IPCNT2  14-0000000C  I*4   NGL     18-0000015C  R*4   SENGIN
+ 18-00000040  R*4   CSGMIN  18-00000148  I*4   ISNUNC  14-00000010  I*4   NGT     18-000000C4  R*4   SIGMA 
+ 18-0000005C  R*4   CSGRAL  18-000001A0  I*4   ISOLVE  16-00000000  I*4   NIN     18-000001D0  R*4   SPARE1
+ 18-00000060  R*4   CSGRCL  18-00000098  I*4   ITEST   18-0000006C  I*4   NLINE   18-000001D4  R*4   SPARE2
+ 18-00000110  R*4   CTEST   18-00000018  I*4   ITROUT  18-0000014C  I*4   NLINPP  18-000001D8  R*4   SPARE3
+ 18-00000020  R*4   DAMPA   15-00000010  I*4   IVB     18-00000010  I*4   NLOOP   18-000001DC  R*4   SPARE4
+ 18-00000024  R*4   DAMPD   18-00000178  I*4   JDIFQ   18-00000174  I*4   NLOOP1  18-000001E0  R*4   SPARE5
+ 18-00000160  R*4   DBLPRC  18-0000009C  I*4   JTEST   14-00000004  I*4   NNC     18-000001E4  R*4   SPARE6
+ 18-000001C4  R*4   DEBUGF  18-0000017C  I*4   KMAX    14-00000000  I*4   NND     18-000001E8  R*4   SPARE7
+ 18-000001A8  R*4   DEFLIM  18-000000A0  I*4   KTEST   18-000001EC  I*4   NNGSPM  18-000001F4  R*4   SPARE8
+ 18-00000064  R*4   DRLXCA  15-0000000C  I*4   LARRY   14-00000008  I*4   NNT     18-000001F8  R*4   SPARE9
+ 18-00000068  R*4   DRLXCC  18-000000C0  I*4   LAXFAC  18-000000E0  I*4   NODEEB  18-000001FC  R*4   SSTERM
+ 18-00000114  R*4   DTEST   15-0000001C  I*4   LCHAR   18-000001C8  I*4   NOFERR  18-000000B0  R*4   STEST 
+ 18-0000001C  R*4   DTIMEH  15-00000004  I*4   LCOND   16-00000004  I*4   NOUT    18-000000D0  R*4   TDERV 
+ 18-00000054  R*4   DTIMEI  15-00000008  I*4   LCONS   18-00000070  I*4   NPAGE   18-00000034  R*4   TIMEM 
+ 18-00000050  R*4   DTIMEL  14-00000054  I*4   LCS     18-000001A4  I*4   NPASS   18-00000000  R*4   TIMEN 
+ 18-00000004  R*4   DTIMEU  16-00000008  I*4   LDAT    14-00000034  I*4   NPC     18-00000008  R*4   TIMEND
+ 18-00000014  R*4   DTMPCA  16-0000000C  I*4   LDIC    14-00000044  I*4   NPM     18-00000030  R*4   TIMEO 
+ 18-00000038  R*4   DTMPCC  14-00000028  I*4   LENA    14-00000038  I*4   NPT     18-000000C8  R*4   TMPZRO
+ 18-000000DC  R*4   EBNODE  15-00000000  I*4   LNODE   14-0000002C  I*4   NSQ1    18-000000B4  R*4   TTEST 
+ 18-0000007C  R*4   ENGBAL  18-0000004C  I*4   LOOPCT  14-00000030  I*4   NSQ2    18-000001BC  R*4   USRFLO
+ 18-00000184  R*4   EPS     18-00000150  I*4   LOTEMP  14-0000003C  I*4   NSQ3    18-000000B8  R*4   UTEST 
+ 18-00000154  R*4   ERRMAX  15-00000014  I*4   LPRES   14-0000004C  I*4   NSQ4    18-000000BC  R*4   VTEST 
+ 18-00000158  R*4   ERRMIN  18-00000078  I*4   LSPCS   18-000000D4  I*4   NTDERV  18-00000134  R*4   WTEST 
+ 18-00000118  R*4   ETEST   18-000000A4  I*4   LTEST   14-00000048  I*4   NTE     18-00000138  R*4   XTEST 
+ 18-000000E4  R*4   EXTLIM  15-00000018  I*4   LTUBE   18-00000104  I*4   NTEST   18-0000013C  R*4   YTEST 
+ 18-00000190  R*4   FLOABS  18-00000164  I*4   MPCNTL  17-00000004  I*4   NTH     18-00000140  R*4   ZTEST 
+ 18-00000198  R*4   FLOMAX  18-000000A8  I*4   MTEST   18-00000144  I*4   NTROSS                           
+ 18-00000194  R*4   FLOREL  18-00000090  I*4   NARLXC  14-0000001C  I*4   NUC                              
+
+
+
+VARBL2                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 19
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ARRAYS
+
+ Address      Type  Name        Bytes  Dimensions
+
+ 11-00000000  R*4   A            7088  (1772)
+  7-00000000  R*4   C              12  (3)
+  9-00000000  R*4   G              48  (12)
+  5-00000000  CHAR  H             120  (20)
+ 11-00000000  I*4   IA           7088  (1772)
+ 10-00000000  I*4   K              44  (11)
+ 12-00000000  I*4   LSQ1          380  (95)
+ 13-00000000  I*4   LSQ2          144  (36)
+ 17-00000008  I*4   NX        4000000  (1000000)
+  8-00000000  R*4   Q              28  (7)
+  6-00000000  R*4   T              40  (10)
+ 17-00000008  R*4   X         4000000  (1000000)
+ 10-00000000  R*4   XK             44  (11)
+
+OUTCAL                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 20
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    221       SUBROUTINE OUTCAL                                                                                             
+	    221                 
+	    222       use msflib                                                                                                    
+	    222                 
+	    223       CHARACTER*6 H                                                                                                 
+	    223                 
+	    224       COMMON /TITLE/H(20)                                                                                           
+	    224                 
+	    225       COMMON /TEMP/T(     10)                                                                                       
+	    225                 
+	    226       COMMON /CAP/C(      3)                                                                                        
+	    226                 
+	    227       COMMON /SOURCE/Q(      7)                                                                                     
+	    227                 
+	    228       COMMON /COND/G(      12)                                                                                      
+	    228                 
+	    229       COMMON /KONST/K(     11)                                                                                      
+	    229                 
+	    230       COMMON /ARRAY/A(    1772)                                                                                     
+	    230                 
+	    231       COMMON /PC1/LSQ1(      95)                                                                                    
+	    231                 
+	    232       COMMON /PC2/LSQ2(      36)                                                                                    
+	    232                 
+	    233       COMMON /DIMENS/NND,NNC,NNT,NGL,NGT,NGE,NCC,NUC,NCT,NAT,LENA                                                   
+	    233                 
+	    234      +,NSQ1,NSQ2,NPC,NPT,NSQ3,NVL,NPM,NTE,NSQ4,NCS,LCS                                                              
+	    234                 
+	    235       COMMON /POINTN/LNODE,LCOND,LCONS,LARRY,IVB,LPRES,LTUBE,LCHAR                                                  
+	    235                 
+	    236       COMMON /TAPE/NIN,NOUT,LDAT,LDIC,ASCI,FLUD,GNRL,CHAR,GUI                                                       
+	    236                 
+	    237       COMMON /XSPACE/NDIM,NTH,X( 1000000)                                                                           
+	    237                 
+	    238       COMMON /FIXCON/                                                                                               
+	    238                 
+	    239      +TIMEN ,DTIMEU,TIMEND,CSGFAC,NLOOP ,DTMPCA,ITROUT,DTIMEH,                                                      
+	    239                 
+	    240      +DAMPA ,DAMPD ,ATMPCA,BACKUP,TIMEO ,TIMEM ,DTMPCC,ATMPCC,                                                      
+	    240                 
+	    241      +CSGMIN,OUTPUT,ARLXCA,LOOPCT,DTIMEL,DTIMEI,CSGMAX,CSGRAL,                                                      
+	    241                 
+	    242      +CSGRCL,DRLXCA,DRLXCC,NLINE ,NPAGE ,ARLXCC,LSPCS ,ENGBAL,                                                      
+	    242                 
+	    243      +BALENG,ATSLIM,NCSGMN,NDTMPC,NARLXC,NATMPC,ITEST ,JTEST ,                                                      
+	    243                 
+	    244      +KTEST ,LTEST ,MTEST ,RTEST ,STEST ,TTEST ,UTEST ,VTEST ,                                                      
+	    244                 
+	    245      +LAXFAC,SIGMA ,TMPZRO,NDRLXC,TDERV ,NTDERV,BENODE,EBNODE,                                                      
+	    245                 
+	    246      +NODEEB,EXTLIM,NCOLUM,PRLXCA,PRLXCC,NEGSIV,GRVCON,PZERO ,                                                      
+	    246                 
+	    247      +NCSGMX,NTEST ,ATEST ,BTEST ,CTEST ,DTEST ,ETEST ,FTEST ,                                                      
+	    247                 
+	    248      +GTEST ,HTEST ,OTEST ,PTEST ,QTEST ,WTEST ,XTEST ,YTEST ,                                                      
+	    248                 
+	    249      +ZTEST ,NTROSS,ISNUNC,NLINPP,LOTEMP,ERRMAX,ERRMIN,SENGIN,                                                      
+
+OUTCAL                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 21
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    249                 
+	    250      +DBLPRC,MPCNTL,IPCNT1,IPCNT2,ATSLM1,NLOOP1,JDIFQ ,KMAX  ,                                                      
+	    250                 
+	    251      +FRACHG,EPS   ,PRSABS,PRSREL,FLOABS,FLOREL,FLOMAX,PRANGE,                                                      
+	    251                 
+	    252      +ISOLVE,NPASS ,DEFLIM,ICHECK,GRAV  ,GC1   ,GC2   ,USRFLO,                                                      
+	    252                 
+	    253      +PMPTOL,DEBUGF,NOFERR,GC3   ,SPARE1,SPARE2,SPARE3,SPARE4,                                                      
+	    253                 
+	    254      +SPARE5,SPARE6,SPARE7,NNGSPM,NCONVG,SPARE8,SPARE9,SSTERM                                                       
+	    254                 
+	    255       DIMENSION XK(     11),NX( 1000000),IA(    1772)                                                               
+	    255                 
+	    256       EQUIVALENCE (K(1),XK(1)),(X(1),NX(1)),(A(1),IA(1))                                                            
+	    256                 
+	    257       LOGICAL ASCI,FLUD,GNRL,CHAR,GUI                                                                               
+	    257                 
+	    258       CHARACTER * 23 PRNAME                                                                                         
+	    258                 
+	    259       COMMON /PROBNAME/PRNAME                                                                                       
+	    259                 
+	    260       CALL TPRINT                                                                                                   
+	    260                 
+	    261       CALL QNPRNT                                                                                                   
+	    261                 
+	    262 C           GPRINT                                                                                                  
+	    262                 
+	    263 C           QFPRNT                                                                                                  
+	    263                 
+	    264 C           KPRINT                                                                                                  
+	    264                 
+	    265       CALL ADTPRT                                                                                                   
+	    265                 
+	    266       END                                                                                                           
+	    266                 
+
+OUTCAL                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 22
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 _TITLE                                 120 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  6 _TEMP                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  7 _CAP                                    12 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  8 _SOURCE                                 28 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  9 _COND                                   48 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 10 _KONST                                  44 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 11 _ARRAY                                7088 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 12 _PC1                                   380 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 13 _PC2                                   144 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 14 _DIMENS                                 88 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 15 _POINTN                                 32 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 16 _TAPE                                   36 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 17 _XSPACE                            4000008 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 18 _FIXCON                                512 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 19 _PROBNAME                               23 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+ 20 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated              4009952
+
+
+ENTRY POINTS
+
+ Address      Name  
+                    
+  4-000001EE  OUTCAL
+
+
+VARIABLES
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+ 18-00000048  R*4   ARLXCA  18-0000005C  R*4   CSGRAL  18-00000038  R*4   DTMPCC  18-000001CC  R*4   GC3   
+ 18-00000074  R*4   ARLXCC  18-00000060  R*4   CSGRCL  18-000000DC  R*4   EBNODE  16-00000018  L*4   GNRL  
+ 16-00000010  L*4   ASCI    18-00000110  R*4   CTEST   18-0000007C  R*4   ENGBAL  18-000001B0  R*4   GRAV  
+ 18-00000108  R*4   ATEST   18-00000020  R*4   DAMPA   18-00000184  R*4   EPS     18-000000F8  R*4   GRVCON
+ 18-00000028  R*4   ATMPCA  18-00000024  R*4   DAMPD   18-00000154  R*4   ERRMAX  18-00000120  R*4   GTEST 
+ 18-0000003C  R*4   ATMPCC  18-00000160  R*4   DBLPRC  18-00000158  R*4   ERRMIN  16-00000020  L*4   GUI   
+ 18-00000084  R*4   ATSLIM  18-000001C4  R*4   DEBUGF  18-00000118  R*4   ETEST   18-00000124  R*4   HTEST 
+ 18-00000170  R*4   ATSLM1  18-000001A8  R*4   DEFLIM  18-000000E4  R*4   EXTLIM  18-000001AC  I*4   ICHECK
+ 18-0000002C  R*4   BACKUP  18-00000064  R*4   DRLXCA  18-00000190  R*4   FLOABS  18-00000168  I*4   IPCNT1
+ 18-00000080  R*4   BALENG  18-00000068  R*4   DRLXCC  18-00000198  R*4   FLOMAX  18-0000016C  I*4   IPCNT2
+ 18-000000D8  R*4   BENODE  18-00000114  R*4   DTEST   18-00000194  R*4   FLOREL  18-00000148  I*4   ISNUNC
+ 18-0000010C  R*4   BTEST   18-0000001C  R*4   DTIMEH  16-00000014  L*4   FLUD    18-000001A0  I*4   ISOLVE
+ 16-0000001C  L*4   CHAR    18-00000054  R*4   DTIMEI  18-00000180  R*4   FRACHG  18-00000098  I*4   ITEST 
+ 18-0000000C  R*4   CSGFAC  18-00000050  R*4   DTIMEL  18-0000011C  R*4   FTEST   18-00000018  I*4   ITROUT
+ 18-00000058  R*4   CSGMAX  18-00000004  R*4   DTIMEU  18-000001B4  R*4   GC1     15-00000010  I*4   IVB   
+ 18-00000040  R*4   CSGMIN  18-00000014  R*4   DTMPCA  18-000001B8  R*4   GC2     18-00000178  I*4   JDIFQ 
+
+OUTCAL                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 23
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+ 18-0000009C  I*4   JTEST   14-00000050  I*4   NCS     14-00000038  I*4   NPT     18-000001D0  R*4   SPARE1
+ 18-0000017C  I*4   KMAX    18-00000088  I*4   NCSGMN  14-0000002C  I*4   NSQ1    18-000001D4  R*4   SPARE2
+ 18-000000A0  I*4   KTEST   18-00000100  I*4   NCSGMX  14-00000030  I*4   NSQ2    18-000001D8  R*4   SPARE3
+ 15-0000000C  I*4   LARRY   14-00000020  I*4   NCT     14-0000003C  I*4   NSQ3    18-000001DC  R*4   SPARE4
+ 18-000000C0  I*4   LAXFAC  17-00000000  I*4   NDIM    14-0000004C  I*4   NSQ4    18-000001E0  R*4   SPARE5
+ 15-0000001C  I*4   LCHAR   18-000000CC  I*4   NDRLXC  18-000000D4  I*4   NTDERV  18-000001E4  R*4   SPARE6
+ 15-00000004  I*4   LCOND   18-0000008C  I*4   NDTMPC  14-00000048  I*4   NTE     18-000001E8  R*4   SPARE7
+ 15-00000008  I*4   LCONS   18-000000F4  I*4   NEGSIV  18-00000104  I*4   NTEST   18-000001F4  R*4   SPARE8
+ 14-00000054  I*4   LCS     14-00000014  I*4   NGE     17-00000004  I*4   NTH     18-000001F8  R*4   SPARE9
+ 16-00000008  I*4   LDAT    14-0000000C  I*4   NGL     18-00000144  I*4   NTROSS  18-000001FC  R*4   SSTERM
+ 16-0000000C  I*4   LDIC    14-00000010  I*4   NGT     14-0000001C  I*4   NUC     18-000000B0  R*4   STEST 
+ 14-00000028  I*4   LENA    16-00000000  I*4   NIN     14-00000040  I*4   NVL     18-000000D0  R*4   TDERV 
+ 15-00000000  I*4   LNODE   18-0000006C  I*4   NLINE   18-00000128  R*4   OTEST   18-00000034  R*4   TIMEM 
+ 18-0000004C  I*4   LOOPCT  18-0000014C  I*4   NLINPP  18-00000044  R*4   OUTPUT  18-00000000  R*4   TIMEN 
+ 18-00000150  I*4   LOTEMP  18-00000010  I*4   NLOOP   18-000001C0  R*4   PMPTOL  18-00000008  R*4   TIMEND
+ 15-00000014  I*4   LPRES   18-00000174  I*4   NLOOP1  18-0000019C  R*4   PRANGE  18-00000030  R*4   TIMEO 
+ 18-00000078  I*4   LSPCS   14-00000004  I*4   NNC     18-000000EC  R*4   PRLXCA  18-000000C8  R*4   TMPZRO
+ 18-000000A4  I*4   LTEST   14-00000000  I*4   NND     18-000000F0  R*4   PRLXCC  18-000000B4  R*4   TTEST 
+ 15-00000018  I*4   LTUBE   18-000001EC  I*4   NNGSPM  19-00000000  CHAR  PRNAME  18-000001BC  R*4   USRFLO
+ 18-00000164  I*4   MPCNTL  14-00000008  I*4   NNT     18-00000188  R*4   PRSABS  18-000000B8  R*4   UTEST 
+ 18-000000A8  I*4   MTEST   18-000000E0  I*4   NODEEB  18-0000018C  R*4   PRSREL  18-000000BC  R*4   VTEST 
+ 18-00000090  I*4   NARLXC  18-000001C8  I*4   NOFERR  18-0000012C  R*4   PTEST   18-00000134  R*4   WTEST 
+ 14-00000024  I*4   NAT     16-00000004  I*4   NOUT    18-000000FC  R*4   PZERO   18-00000138  R*4   XTEST 
+ 18-00000094  I*4   NATMPC  18-00000070  I*4   NPAGE   18-00000130  R*4   QTEST   18-0000013C  R*4   YTEST 
+ 14-00000018  I*4   NCC     18-000001A4  I*4   NPASS   18-000000AC  R*4   RTEST   18-00000140  R*4   ZTEST 
+ 18-000000E8  I*4   NCOLUM  14-00000034  I*4   NPC     18-0000015C  R*4   SENGIN                           
+ 18-000001F0  I*4   NCONVG  14-00000044  I*4   NPM     18-000000C4  R*4   SIGMA                            
+
+
+ARRAYS
+
+ Address      Type  Name        Bytes  Dimensions
+
+ 11-00000000  R*4   A            7088  (1772)
+  7-00000000  R*4   C              12  (3)
+  9-00000000  R*4   G              48  (12)
+  5-00000000  CHAR  H             120  (20)
+ 11-00000000  I*4   IA           7088  (1772)
+ 10-00000000  I*4   K              44  (11)
+ 12-00000000  I*4   LSQ1          380  (95)
+ 13-00000000  I*4   LSQ2          144  (36)
+ 17-00000008  I*4   NX        4000000  (1000000)
+  8-00000000  R*4   Q              28  (7)
+  6-00000000  R*4   T              40  (10)
+ 17-00000008  R*4   X         4000000  (1000000)
+ 10-00000000  R*4   XK             44  (11)
+
+ADTPRT                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 24
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    267       SUBROUTINE ADTPRT                                                                                             
+	    267                 
+	    268 C     Purpose - Print specific parameters in a seperate file.                                                       
+	    268                 
+	    269       COMMON /FIXCON/                                                                                               
+	    269                 
+	    270      +TIMEN ,DTIMEU,TIMEND,CSGFAC,NLOOP ,DTMPCA,ITROUT,DTIMEH,                                                      
+	    270                 
+	    271      +DAMPA ,DAMPD ,ATMPCA,BACKUP,TIMEO ,TIMEM ,DTMPCC,ATMPCC,                                                      
+	    271                 
+	    272      +CSGMIN,OUTPUT,ARLXCA,LOOPCT,DTIMEL,DTIMEI,CSGMAX,CSGRAL,                                                      
+	    272                 
+	    273      +CSGRCL,DRLXCA,DRLXCC,NLINE ,NPAGE ,ARLXCC,LSPCS ,ENGBAL,                                                      
+	    273                 
+	    274      +BALENG,ATSLIM,NCSGMN,NDTMPC,NARLXC,NATMPC,ITEST ,JTEST ,                                                      
+	    274                 
+	    275      +KTEST ,LTEST ,MTEST ,RTEST ,STEST ,TTEST ,UTEST ,VTEST ,                                                      
+	    275                 
+	    276      +LAXFAC,SIGMA ,TMPZRO,NDRLXC,TDERV ,NTDERV,BENODE,EBNODE,                                                      
+	    276                 
+	    277      +NODEEB,EXTLIM,NFLOOP,PRLXCA,PRLXCC,LOOPFC,GRVCON,PZERO ,                                                      
+	    277                 
+	    278      +NCSGMX,NTEST ,ATEST ,BTEST ,CTEST ,DTEST ,ETEST ,FTEST ,                                                      
+	    278                 
+	    279      +GTEST ,HTEST ,OTEST ,PTEST ,QTEST ,WTEST ,XTEST ,YTEST ,                                                      
+	    279                 
+	    280      +ZTEST ,NTROSS,ISNUNC,NLINPP,LOTEMP,ERRMAX,ERRMIN,SENGIN,                                                      
+	    280                 
+	    281      +DBLPRC,MPCNTL,IPCNT1,IPCNT2,ATSLM1,NLOOP1,JDIFQ ,KMAX  ,                                                      
+	    281                 
+	    282      +FRACHG,EPS   ,PRSABS,PRSREL,FLOABS,FLOREL,FLOMAX,PRANGE,                                                      
+	    282                 
+	    283      +ISOLVE,NPASS ,DEFLIM,ICHECK,GRAV  ,GC1   ,GC2   ,USRFLO,                                                      
+	    283                 
+	    284      +PMPTOL,DEBUGF,NOFERR,SPARE0,SPARE1,SPARE2,SPARE3,SPARE4,                                                      
+	    284                 
+	    285      +SPARE5,SPARE6,SPARE7,SPARE8,SPARE9                                                                            
+	    285                 
+	    286       COMMON /  TEMP/   T(1)                                                                                        
+	    286                 
+	    287 C        Set up the print loop, and open the ASCII output file.                                                     
+	    287                 
+	    288 CF     OPEN( 88, FILE = "TAPE88", ACCESS = "APPEND")                                                                
+	    288                 
+	    289       OPEN( 88, FILE = "output.out", ACCESS = "APPEND")                                                             
+	    289                 
+	    290 CcM     WRITE( 88,"(' ', 9F10.3)") TIMEN,                                                                           
+	    290                 
+	    291 CcM    :                 T(1000), T(1001), T(1100), T(2000),                                                        
+	    291                 
+	    292 CcM    :                 T(3000), T(4001), T(5000), T(6000)                                                         
+	    292                 
+	    293       WRITE( 88,"(' ', 9F10.3)") TIMEN,                                                                             
+	    293                 
+	    294      :                 T(4), T(1), T(5), T(2),                                                                      
+	    294                 
+	    295      :                 T(6), T(3), T(7), T(10)                                                                      
+
+ADTPRT                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 25
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    295                 
+	    296       CLOSE(88)                                                                                                     
+	    296                 
+	    297       RETURN                                                                                                        
+	    297                 
+	    298 C     END                                                                                                           
+	    298                 
+	    299       RETURN                                                                                                        
+	    299                 
+	    300       END                                                                                                           
+	    300                 
+
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 _TEMP                                   40 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  6 _FIXCON                                512 NOPIC OVR REL GBL NOSHR NOEXE   RD   WRT OCTA
+  7 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated                 1901
+
+
+ENTRY POINTS
+
+ Address      Name  
+                    
+  4-00000207  ADTPRT
+
+
+VARIABLES
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+  6-00000048  R*4   ARLXCA   6-00000024  R*4   DAMPD    6-00000118  R*4   ETEST    6-00000098  I*4   ITEST 
+  6-00000074  R*4   ARLXCC   6-00000160  R*4   DBLPRC   6-000000E4  R*4   EXTLIM   6-00000018  I*4   ITROUT
+  6-00000108  R*4   ATEST    6-000001C4  R*4   DEBUGF   6-00000190  R*4   FLOABS   6-00000178  I*4   JDIFQ 
+  6-00000028  R*4   ATMPCA   6-000001A8  R*4   DEFLIM   6-00000198  R*4   FLOMAX   6-0000009C  I*4   JTEST 
+  6-0000003C  R*4   ATMPCC   6-00000064  R*4   DRLXCA   6-00000194  R*4   FLOREL   6-0000017C  I*4   KMAX  
+  6-00000084  R*4   ATSLIM   6-00000068  R*4   DRLXCC   6-00000180  R*4   FRACHG   6-000000A0  I*4   KTEST 
+  6-00000170  R*4   ATSLM1   6-00000114  R*4   DTEST    6-0000011C  R*4   FTEST    6-000000C0  I*4   LAXFAC
+  6-0000002C  R*4   BACKUP   6-0000001C  R*4   DTIMEH   6-000001B4  R*4   GC1      6-0000004C  I*4   LOOPCT
+  6-00000080  R*4   BALENG   6-00000054  R*4   DTIMEI   6-000001B8  R*4   GC2      6-000000F4  I*4   LOOPFC
+  6-000000D8  R*4   BENODE   6-00000050  R*4   DTIMEL   6-000001B0  R*4   GRAV     6-00000150  I*4   LOTEMP
+  6-0000010C  R*4   BTEST    6-00000004  R*4   DTIMEU   6-000000F8  R*4   GRVCON   6-00000078  I*4   LSPCS 
+  6-0000000C  R*4   CSGFAC   6-00000014  R*4   DTMPCA   6-00000120  R*4   GTEST    6-000000A4  I*4   LTEST 
+  6-00000058  R*4   CSGMAX   6-00000038  R*4   DTMPCC   6-00000124  R*4   HTEST    6-00000164  I*4   MPCNTL
+  6-00000040  R*4   CSGMIN   6-000000DC  R*4   EBNODE   6-000001AC  I*4   ICHECK   6-000000A8  I*4   MTEST 
+  6-0000005C  R*4   CSGRAL   6-0000007C  R*4   ENGBAL   6-00000168  I*4   IPCNT1   6-00000090  I*4   NARLXC
+  6-00000060  R*4   CSGRCL   6-00000184  R*4   EPS      6-0000016C  I*4   IPCNT2   6-00000094  I*4   NATMPC
+  6-00000110  R*4   CTEST    6-00000154  R*4   ERRMAX   6-00000148  I*4   ISNUNC   6-00000088  I*4   NCSGMN
+  6-00000020  R*4   DAMPA    6-00000158  R*4   ERRMIN   6-000001A0  I*4   ISOLVE   6-00000100  I*4   NCSGMX
+
+ADTPRT                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 26
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+ Address      Type  Name    Address      Type  Name    Address      Type  Name    Address      Type  Name  
+                                                                                                           
+  6-000000CC  I*4   NDRLXC   6-00000128  R*4   OTEST    6-000001CC  R*4   SPARE0   6-00000008  R*4   TIMEND
+  6-0000008C  I*4   NDTMPC   6-00000044  R*4   OUTPUT   6-000001D0  R*4   SPARE1   6-00000030  R*4   TIMEO 
+  6-000000E8  I*4   NFLOOP   6-000001C0  R*4   PMPTOL   6-000001D4  R*4   SPARE2   6-000000C8  R*4   TMPZRO
+  6-0000006C  I*4   NLINE    6-0000019C  R*4   PRANGE   6-000001D8  R*4   SPARE3   6-000000B4  R*4   TTEST 
+  6-0000014C  I*4   NLINPP   6-000000EC  R*4   PRLXCA   6-000001DC  R*4   SPARE4   6-000001BC  R*4   USRFLO
+  6-00000010  I*4   NLOOP    6-000000F0  R*4   PRLXCC   6-000001E0  R*4   SPARE5   6-000000B8  R*4   UTEST 
+  6-00000174  I*4   NLOOP1   6-00000188  R*4   PRSABS   6-000001E4  R*4   SPARE6   6-000000BC  R*4   VTEST 
+  6-000000E0  I*4   NODEEB   6-0000018C  R*4   PRSREL   6-000001E8  R*4   SPARE7   6-00000134  R*4   WTEST 
+  6-000001C8  I*4   NOFERR   6-0000012C  R*4   PTEST    6-000001EC  R*4   SPARE8   6-00000138  R*4   XTEST 
+  6-00000070  I*4   NPAGE    6-000000FC  R*4   PZERO    6-000001F0  R*4   SPARE9   6-0000013C  R*4   YTEST 
+  6-000001A4  I*4   NPASS    6-00000130  R*4   QTEST    6-000000B0  R*4   STEST    6-00000140  R*4   ZTEST 
+  6-000000D4  I*4   NTDERV   6-000000AC  R*4   RTEST    6-000000D0  R*4   TDERV                            
+  6-00000104  I*4   NTEST    6-0000015C  R*4   SENGIN   6-00000034  R*4   TIMEM                            
+  6-00000144  I*4   NTROSS   6-000000C4  R*4   SIGMA    6-00000000  R*4   TIMEN                            
+
+
+ARRAYS
+
+ Address      Type  Name        Bytes  Dimensions
+
+  5-00000000  R*4   T               4  (1)
+
+VARBLF                          Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 27
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+	    301       SUBROUTINE VARBLF                                                                                             
+	    301                 
+	    302       RETURN                                                                                                        
+	    302                 
+	    303       END                                                                                                           
+	    303                 
+
+PROGRAM SECTIONS
+
+    Name				 Bytes   Attributes
+
+  1 .bss                                     4 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  2 .data                                   32 NOPIC CON REL LCL NOSHR NOEXE   RD   WRT QUAD
+  3 .literal                                99   PIC CON REL LCL   SHR NOEXE   RD NOWRT QUAD
+  4 .text                                 1007   PIC CON REL LCL   SHR   EXE NORD NOWRT QUAD
+  5 .drectve                               207 NOPIC CON REL LCL NOSHR NOEXE NORD NOWRT QUAD
+
+    Total Space Allocated                 1349
+
+
+ENTRY POINTS
+
+ Address      Name  
+                    
+  4-000003E3  VARBLF
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 28
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+COMPILER OPTIONS BEING USED
+
+  /noalign:commons                      /noalign:dcommons
+  /align:records                        /noalign:sequence
+  /noalign:rec1byte                     /noalign:rec2byte
+  /noalign:rec4byte                     /noalign:rec8byte
+  /altparam                             /noannotations:code
+  /noannotations:detail                 /noannotations:feedback
+  /noannotations:inlining               /noannotations:loop_transforms
+  /noannotations:loop_unrolling         /noannotations:prefetching
+  /noannotations:shrinkwrapping         /noannotations:software_pipelining
+  /noannotations:tail_calls             /noannotations:tail_recursion
+  /arch:generic                         /noasmattributes:machine
+  /noasmattributes:source               /assume:accuracy_sensitive
+  /noassume:bscc                        /noassume:buffered_io
+  /assume:byterecl                      /noassume:cc_omp
+  /noassume:cstring                     /noassume:dummy_aliases
+  /noassume:minus0                      /assume:protect_constants
+  /assume:source_include                /noassume:underscore
+  /noassume:2underscores                /noautomatic
+  /nobintext                            /ccdefault:default
+  /nocheck:arg_temp_created             /nocheck:bounds
+  /check:flawed_pentium                 /nocheck:format
+  /nocheck:output_conversion            /nocheck:overflow
+  /nocheck:power                        /nocheck:underflow
+  /convert:native                       /D:_WIN32=1
+  /D:_MT=1                              /D:_DF_VER=660
+  /D:_VF_VER=660                        /D:_X86_=1
+  /D:_M_IX86=500                        /D:_INTEGRAL_MAX_BITS=32
+  /double_size:64                       /nod_lines
+  /error_limit:30                       /extend_source:72
+  /nof66                                /nof77rtl
+  /nofast                               /nofltconsist
+  /nofpscomp:filesfromcmd               /nofpscomp:general
+  /nofpscomp:ioformat                   /nofpscomp:ldio_spacing
+  /fpscomp:libs                         /nofpscomp:logicals
+  /fixed                                /nofpconstant
+  /fpe3                                 /g1
+  /Gt0                                  /iface:stdref
+  /nointconstant                        /integer_size:32
+  /libdir:automatic                     /libdir:user
+  /nolibs_dll                           /nomachine_code
+  /math_library:check                   /mixed_str_len_arg
+  /nomodule                             /names:uppercase
+  /nonoinclude                          /O0
+  /inline:none                          /notransform_loops
+  /nopipeline                           /tune:generic
+  /unroll:0                             /nopad_source
+  /real_size:32                         /norecursive
+  /reentrancy:threaded                  /noshow:include
+  /show:map                             /stand:none
+  /nosyntax_only                        /notraceback
+  /novms                                /warn:alignments
+  /nowarn:argument_checking             /nowarn:declarations
+  /nowarn:errors                        /warn:general
+  /nowarn:granularity                   /nowarn:ignore_loc
+  /nowarn:stderrors                     /nowarn:truncated_source
+
+SINDA                           Source Listing                  17-Jul-2008 14:36:23  Compaq Visual Fortran 6.6-4088    Page 29
+                                                                17-Jul-2008 14:36:23  AL_PLP_Proposal_071708b.for
+
+  /warn:uncalled                        /warn:uninitialized
+  /nowarn:unused                        /warn:usage
+
+  /I         path : .\,C:\Program Files\Microsoft Visual Studio\DF98\IMSL\INCLUDE\,C:\Program Files\Microsoft Visual Studio\DF98\...
+           C:\Program Files\Microsoft Visual Studio\VC98\INCLUDE\,C:\Program Files\Microsoft Visual Studio\DF98\include\,
+           C:\Program Files\intel\VNI\CTT5.0\INCLUDE\intel32\,C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\include\,
+           C:\Program Files\Microsoft Visual Studio\VC98\atl\include\,C:\Program Files\Microsoft Visual Studio\VC98\mfc\include\,
+           C:\Program Files\Microsoft Visual Studio\VC98\include\
+  /V         filename : AL_PLP_Proposal_071708b.lst
+  /o         filename : C:\DOCUME~1\carlan\LOCALS~1\Temp\obj296.tmp
+  /nobrowser
+  /Fd        filename : none
+
+COMPILER: Compaq Visual Fortran 6.6-4088-47D3B
+
+COMPILATION STATISTICS
+
+  CPU time:          0.12 seconds
+  Elapsed time:      0.12 seconds
+  Pagefaults:           0
+  I/O Count:            0
